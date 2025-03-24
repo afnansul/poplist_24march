@@ -1,0 +1,171 @@
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart'; // For formatting the date
+import 'package:intl/date_symbol_data_local.dart';
+
+class TermsAndConditionsPage extends StatefulWidget {
+  @override
+  _TermsAndConditionsPage createState() => _TermsAndConditionsPage();
+}
+
+class _TermsAndConditionsPage extends State<TermsAndConditionsPage> {
+  bool isAdmin = true; // Set to true for admin access
+
+  // Store last updated date
+  DateTime lastUpdated = DateTime.now();
+
+  // Privacy policy content
+  String privacyText =
+      "\n\n١. تطبيق بوب لست يساعد المصابين بإضطراب قلة الانتباه وفرط النشاط بتنظيم مهامهم وتحفيزهم عن طريق فتح لعبة المتاهة عند إكمال جميع المهام، وبذلك سيتحسن معدل التركيز"
+      "٢. يجب ان يكون عمر المستخدم ٦ اعوام على الأقل.\n\n"
+      "٣. بوب لست يحافظ على خصوصية المستخدم. لن يتم جمع او مشاركة اي معلومات شخصية دون إذن المستخدم.\n\n"
+      "٤. يتحمل المستخدم مسؤولية الحفاظ على سرية بيانات حسابه.\n\n"
+      "٥. سيتم إبلاغ مستخدمين بوب لست بأي تغييرات في الشروط والأحكام او سياسة الخصوصية.\n\n";
+
+
+
+  @override
+  void initState() {
+    super.initState();
+    initializeDateFormatting('ar', null).then((_) {
+      setState(() {}); // Rebuild the widget after initialization
+    });
+  }
+
+  // Function to edit privacy policy
+  void _editPrivacyPolicy() {
+    TextEditingController controller = TextEditingController(text: privacyText);
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("تعديل الشروط و الأحكام"),
+          content: TextField(
+            controller: controller,
+            maxLines: 10,
+            decoration: InputDecoration(border: OutlineInputBorder()),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text("إلغاء"),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  privacyText = controller.text;
+                  lastUpdated = DateTime.now(); // Update the last modified date
+                });
+                Navigator.pop(context);
+              },
+              child: Text("حفظ"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Function to format date in Arabic
+  String getFormattedDate() {
+    return DateFormat('d MMMM yyyy', 'ar').format(lastUpdated);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        children: [
+          // Background Image
+          Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage("assets/img4.jpg"), // Ensure this image exists
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          Column(
+            children: [
+              SizedBox(height: 50), // Space for status bar
+
+              // Header Row
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Row(
+                  children: [
+                    // Back button
+                    IconButton(
+                      icon: Icon(Icons.arrow_back, color: Colors.white, size: 28),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                    Spacer(), // Pushes title to the right
+                    Text(
+                      "الشروط و الأحكام",
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    SizedBox(width: 10), // Space between title and edit button
+                    if (isAdmin) // Show edit button only for admin
+                      IconButton(
+                        icon: Icon(Icons.edit, color: Colors.white, size: 28),
+                        onPressed: _editPrivacyPolicy,
+                      ),
+                  ],
+                ),
+              ),
+
+              SizedBox(height: 20),
+
+              // Privacy Policy Content
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: SingleChildScrollView(
+                    child: Container(
+                      padding: EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.9),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          // Display dynamic last updated date
+                          Text(
+                            "آخر تحديث ${getFormattedDate()}",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black54,
+                            ),
+                          ),
+                          SizedBox(height: 10),
+
+                          // Privacy policy text
+                          Text(
+                            privacyText,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 16,
+                              height: 1.5,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
