@@ -1,0 +1,167 @@
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart'; // For formatting the date
+import 'package:intl/date_symbol_data_local.dart';
+
+class PrivacyPolicyPage extends StatefulWidget {
+  @override
+  _PrivacyPolicyPageState createState() => _PrivacyPolicyPageState();
+}
+
+class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
+  bool isAdmin = true; // Set to true for admin access
+
+  // Store last updated date
+  DateTime lastUpdated = DateTime.now();
+
+  // Privacy policy content
+  String privacyText =
+      "تصف سياسة الخصوصية الإجراءات بشأن جمع معلوماتك واستخدامها...\n\n"
+      "نحن فريق PopList نستخدم بياناتك الشخصية لتوفير الخدمة وتحسينها. لذا باستخدامك هذه الخدمة أنت تقر بأنك توافق على جمع واستخدام البيانات وفقًا لسياسة الخصوصية.\n\n"
+      "ونوّد التنويه بأنه سيتم إبلاغك بالتغييرات في حال تم تحديث سياسة الخصوصية.";
+
+  @override
+  void initState() {
+    super.initState();
+    initializeDateFormatting('ar', null).then((_) {
+      setState(() {}); // Rebuild the widget after initialization
+    });
+  }
+
+  // Function to edit privacy policy
+  void _editPrivacyPolicy() {
+    TextEditingController controller = TextEditingController(text: privacyText);
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("تعديل سياسة الخصوصية"),
+          content: TextField(
+            controller: controller,
+            maxLines: 10,
+            decoration: InputDecoration(border: OutlineInputBorder()),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text("إلغاء"),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  privacyText = controller.text;
+                  lastUpdated = DateTime.now(); // Update the last modified date
+                });
+                Navigator.pop(context);
+              },
+              child: Text("حفظ"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Function to format date in Arabic
+  String getFormattedDate() {
+    return DateFormat('d MMMM yyyy', 'ar').format(lastUpdated);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        children: [
+          // Background Image
+          Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage("assets/img4.jpg"), // Ensure this image exists
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          Column(
+            children: [
+              SizedBox(height: 50), // Space for status bar
+
+              // Header Row
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Row(
+                  children: [
+                    // Back button
+                    IconButton(
+                      icon: Icon(Icons.arrow_back, color: Colors.white, size: 28),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                    Spacer(), // Pushes title to the right
+                    Text(
+                      "سياسة الخصوصية",
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    SizedBox(width: 10), // Space between title and edit button
+                    if (isAdmin) // Show edit button only for admin
+                      IconButton(
+                        icon: Icon(Icons.edit, color: Colors.white, size: 28),
+                        onPressed: _editPrivacyPolicy,
+                      ),
+                  ],
+                ),
+              ),
+
+              SizedBox(height: 20),
+
+              // Privacy Policy Content
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: SingleChildScrollView(
+                    child: Container(
+                      padding: EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.9),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          // Display dynamic last updated date
+                          Text(
+                            "آخر تحديث ${getFormattedDate()}",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black54,
+                            ),
+                          ),
+                          SizedBox(height: 10),
+
+                          // Privacy policy text
+                          Text(
+                            privacyText,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 16,
+                              height: 1.5,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
